@@ -4,7 +4,7 @@
  */
 
 import { World } from '../environments/world'
-import { Coordinates, OptionalSize, Size } from '../utils/types'
+import { Coordinates, OptionalCoordinates, OptionalSize, Size } from '../utils/types'
 
 /**
  * Entity parameters
@@ -34,7 +34,7 @@ export class Entity {
     size: Size
 
     /** Entities World */
-    #world: World
+    protected world: World
 
     /**
      * Constructor for Entity class
@@ -45,10 +45,34 @@ export class Entity {
       this.char = char
       this.position = position
       this.size = { width: 1, height: 1, ...size }
-      this.#world = world
+      this.world = world
     }
 
-    get truePosition () {
-      return this.#world.getEntityPosition(this.position)
+    /**
+     * Position entity in World
+     * @param {OptionalCoordinates} position New position of entity
+     */
+    positionEntity (position: OptionalCoordinates): void {
+      this.world.removeEntity(this)
+      const previousEntity = this.world.findEntity(this.position)
+      if (previousEntity) {
+        this.world.drawEntity(previousEntity)
+      }
+      this.position = { ...this.position, ...position }
+      this.world.defineEntity(this)
+    }
+
+    /**
+     * Redraw the Entity
+     */
+    redrawEntity () {
+      this.world.drawEntity(this)
+    }
+
+    /**
+     * True position of Entity relative to World position
+     */
+    get truePosition (): Coordinates {
+      return this.world.getEntityPosition(this)
     }
 }
