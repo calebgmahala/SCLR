@@ -1,4 +1,6 @@
-import World from './engine/environments/world'
+import { Entity } from './engine/entities/base'
+import { World } from './engine/environments/world'
+
 const world = new World()
 const placer = document.getElementById('placer')
 let click = 1
@@ -9,7 +11,7 @@ placer.addEventListener('click', () => {
 const remover = document.getElementById('remover')
 let click2 = 1
 remover.addEventListener('click', () => {
-  remove('@', click2, click2)
+  remove(click2, click2)
   click2++
 })
 
@@ -30,9 +32,16 @@ down.addEventListener('click', () => {
   world.setPosition({ y: world.position.y + 5 })
 })
 
-function remove (c:any, x:any, y:any) {
-  world.removeCharacter({ char: c, x: x, y: y })
+function remove (x:any, y:any) {
+  world.removeEntity({ x, y })
 }
 function place (c:any, x:any, y:any) {
-  world.defineCharacter({ char: c, x: x, y: y })
+  world.defineEntity(new Entity({
+    char: c,
+    position: {
+      x,
+      y
+    },
+    world
+  }))
 }
