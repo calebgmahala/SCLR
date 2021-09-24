@@ -1,6 +1,12 @@
 /**
- * Style parameters
+ * @packageDocumentation
+ * @module World
  */
+
+import { Entity } from '../entities/base'
+import { Coordinates, OptionalCoordinates, OptionalSize, Size } from '../utils/types'
+
+/** Style parameters */
 export interface StyleProps {
     height?: string
     width?: string
@@ -9,70 +15,37 @@ export interface StyleProps {
     color?: string
 }
 
-/**
- * Character properties
- */
-export interface Character {
-    /** Character */
-    char: string
-    /** x coordinate */
-    x: number
-    /** y coordinate */
-    y: number
-}
-
-/**
- * World parameters
- */
+/** World parameters */
 export interface WorldProps {
     /** id of World dom element */
     id?: string
     /** coordinates of World starting position */
-    position?: {
-        /** x coordinate of World starting position */
-        x?: number
-        /** y coordinate of World starting position */
-        y?: number
-    }
+    position?: OptionalCoordinates
     /** size of World */
-    size?: {
-        /** width of World */
-        width?: number
-        /** height of World */
-        height?: number
-    }
+    size?: OptionalSize
     /** css style of World element */
     style?: StyleProps
 }
 
 /**
  * World class manages the World position and World rendering
+ * @category Environments
  */
-class World {
+export class World {
     /** html element that holds the world */
     dom: HTMLElement
     /** coordinates of World starting position */
-    position: {
-        /** x coordinate of World starting position */
-        x: number
-        /** y coordinate of World starting position */
-        y: number
-    }
+    position: Coordinates
 
     /** size of World */
-    size: {
-        /** width of World */
-        width: number
-        /** height of World */
-        height: number
-    }
+    size: Size
 
     /** total characters that can fit the width of the World on one line */
     farthestCharX: number
     /** total lines that can fit the hight of the World */
     farthestCharY: number
-    /** List of characters to be rendered */
-    #characterList: Character[]
+    /** List of entities to be rendered */
+    #entityList: Entity[]
     /** String to be rendered */
     #drawString: string
 
@@ -88,17 +61,16 @@ class World {
       this.#initializeStyles({ ...style })
       this.farthestCharX = Math.floor(this.dom.offsetWidth * 0.105) - 1
       this.farthestCharY = Math.floor(this.dom.offsetHeight * 0.054)
-      this.#characterList = []
+      this.#entityList = []
       this.#drawString = (' '.repeat(this.farthestCharX) + '\n').repeat(this.farthestCharY)
       this.draw()
     }
 
     /**
      * Set position of World
-     * @param {number} x world X position
-     * @param {number} y world Y position
+     * @param {OptionalCoordinates} props new World position
      */
-    setPosition (props:{ x?: number, y?: number }): void {
+    setPosition (props:OptionalCoordinates): void {
       this.position = {
         ...this.position,
         ...props
@@ -107,24 +79,28 @@ class World {
     }
 
     /**
-     * Add a character to the list of rendered characters
-     * @param {Character} character character to be added
+     * Add an entity to the list of rendered characters
+     * @param {Entity} entity entity to be added
      */
-    defineCharacter (character: Character): void {
-      this.#characterList.push(character)
-      this.setCharAt(character.char, this.getCharacterIndex(character.x, character.y))
+    defineEntity (entity: Entity): void {
+      const { char, position } = entity
+      this.#entityList.push(entity)
+      this.setCharAt(char, this.getEntityIndex(position))
       this.draw()
     }
 
     /**
      * remove a character from the list of rendered characters
-     * @param {Character} character character to be removed
+     * @param {Entity} entity character to be removed
      */
-    removeCharacter (character: Character): void {
+    removeEntity (entityPosition: Coordinates): void {
+      const { x, y } = entityPosition
       try {
-        const characterIndex = this.#characterList.findIndex(({ x, y }) => (x === character.x && y === character.y))
-        this.#characterList.splice(characterIndex, 1)
-        this.setCharAt(' ', this.getCharacterIndex(character.x, character.y))
+        const entityIndex = this.#entityList.findIndex(({ position }) => (
+          position.x === x && position.y === y
+        ))
+        this.#entityList.splice(entityIndex, 1)
+        this.setCharAt(' ', this.getEntityIndex(entityPosition))
         this.draw()
       } catch (err) {
 
@@ -136,16 +112,26 @@ class World {
       this.dom.innerHTML = this.#drawString
     }
 
-    /**
-     * Re draws World
-     */
+    /** Re draws World */
     reDraw (): void {
       this.#drawString = (' '.repeat(this.farthestCharX) + '\n').repeat(this.farthestCharY)
-      this.#characterList.forEach(character => {
-        const { char, x, y } = character
-        this.setCharAt(char, this.getCharacterIndex(x, y))
+      this.#entityList.forEach(entity => {
+        const { char, position } = entity
+        this.setCharAt(char, this.getEntityIndex(position))
       })
       this.draw()
+    }
+
+    /**
+     * Gets entities true position based off world position
+     * @param {Coordinates}
+     * @returns {Coordinates} true position
+     */
+    getEntityPosition ({ x, y }: Coordinates): Coordinates {
+      return {
+        x: x - this.position.x,
+        y: y - this.position.y
+      }
     }
 
     /**
@@ -154,7 +140,7 @@ class World {
      * @param {number} y y coordinate
      * @returns {number|null} character index of drawstring or null if not in draw window
      */
-    protected getCharacterIndex (x:number, y:number): number|null {
+    protected getEntityIndex ({ x, y }: Coordinates): number|null {
       const newX = x - this.position.x
       const newY = y - this.position.y
       if (newX < 0 || newY < 0 || newX > this.farthestCharX || newY > this.farthestCharY) {
@@ -193,5 +179,3 @@ class World {
       style.color = props.color || 'white'
     }
 }
-
-export default World
