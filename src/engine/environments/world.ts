@@ -79,32 +79,61 @@ export class World {
     }
 
     /**
-     * Add an entity to the list of rendered characters
+     * Add an Entity
      * @param {Entity} entity entity to be added
      */
     defineEntity (entity: Entity): void {
-      const { char, position } = entity
       this.#entityList.push(entity)
-      this.setCharAt(char, this.getEntityIndex(position))
+      this.drawEntity(entity)
+    }
+
+    /**
+     * Draw a specific entity
+     * @param {Entity} entity Entity to be drawn
+     */
+    drawEntity (entity: Entity): void {
+      this.setDrawCharAt(entity.char, this.getEntityDrawStringIndex(entity))
       this.draw()
     }
 
     /**
-     * remove a character from the list of rendered characters
-     * @param {Entity} entity character to be removed
+     * Remove an Entitys
+     * @param {Entity} entity entity to be removed
      */
-    removeEntity (entityPosition: Coordinates): void {
-      const { x, y } = entityPosition
+    removeEntity (entity: Entity): void {
       try {
-        const entityIndex = this.#entityList.findIndex(({ position }) => (
-          position.x === x && position.y === y
+        const entityIndex = this.#entityList.findIndex((e) => (
+          e === entity
         ))
         this.#entityList.splice(entityIndex, 1)
-        this.setCharAt(' ', this.getEntityIndex(entityPosition))
+        this.eraseEntity(entity)
+      } catch (err) {
+
+      }
+    }
+
+    /**
+     * Erase an Entitys
+     * @param {Entity} entity entity to be removed
+     */
+    eraseEntity (entity: Entity): void {
+      try {
+        this.setDrawCharAt(' ', this.getEntityDrawStringIndex(entity))
         this.draw()
       } catch (err) {
 
       }
+    }
+
+    /**
+     * Finds Entity at coordinates
+     * @param {Coordinates}
+     * @returns {Entity} Entity at position
+     */
+    findEntity ({ x, y }: Coordinates): Entity | undefined {
+      return this.#entityList.find(({ position }) => (
+        position.x === x && position.y === y
+      ))
     }
 
     /** Draws the World */
@@ -116,33 +145,32 @@ export class World {
     reDraw (): void {
       this.#drawString = (' '.repeat(this.farthestCharX) + '\n').repeat(this.farthestCharY)
       this.#entityList.forEach(entity => {
-        const { char, position } = entity
-        this.setCharAt(char, this.getEntityIndex(position))
+        this.setDrawCharAt(entity.char, this.getEntityDrawStringIndex(entity))
       })
       this.draw()
     }
 
     /**
-     * Gets entities true position based off world position
-     * @param {Coordinates}
+     * Gets Entities true position based off world position
+     * @param {Entity}
      * @returns {Coordinates} true position
      */
-    getEntityPosition ({ x, y }: Coordinates): Coordinates {
+    getEntityPosition ({ position }: Entity): Coordinates {
       return {
-        x: x - this.position.x,
-        y: y - this.position.y
+        x: position.x - this.position.x,
+        y: position.y - this.position.y
       }
     }
 
     /**
-     * Gets character index from x y position
+     * Gets Entity index
      * @param {number} x x coordinate
      * @param {number} y y coordinate
      * @returns {number|null} character index of drawstring or null if not in draw window
      */
-    protected getEntityIndex ({ x, y }: Coordinates): number|null {
-      const newX = x - this.position.x
-      const newY = y - this.position.y
+    protected getEntityDrawStringIndex ({ position }: Entity): number|null {
+      const newX = position.x - this.position.x
+      const newY = position.y - this.position.y
       if (newX < 0 || newY < 0 || newX > this.farthestCharX || newY > this.farthestCharY) {
         return null
       }
@@ -154,7 +182,7 @@ export class World {
      * @param {string} char character to be set
      * @param {number} index index of drawstring to be replaced
      */
-    protected setCharAt (char: string, index: number|null): void {
+    protected setDrawCharAt (char: string, index: number|null): void {
       if (!index) {
         return
       }
