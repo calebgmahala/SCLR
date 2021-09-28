@@ -3,6 +3,7 @@
  * @module User
  */
 import { Entity, EntityProps } from '../../engine/entities/base'
+import { OptionalCoordinates } from '../../engine/utils/types'
 
 /** User parameters */
 export interface UserProps extends EntityProps {
@@ -13,7 +14,7 @@ export interface UserProps extends EntityProps {
  * @category Entities
  */
 export class User extends Entity {
-    /** Speed of player */
+    /** Speed of player (Should not be higher than any Wall width) */
     speed: number
 
     /** Constructor for User class */
@@ -53,5 +54,21 @@ export class User extends Entity {
       document.addEventListener('keypress', (e) => {
         this.move(e.key)
       })
+    }
+
+    /** Inherited method to position Entry.
+     * @param {OptionalCoordinates} position Position for User to be moved to
+     */
+    positionEntity (position: OptionalCoordinates): void {
+      let stop = false
+      this.world.findEntities({ ...this.position, ...position }).forEach(e => {
+        e.onContact(this, () => {
+          stop = true
+        })
+      })
+      if (stop) {
+        return
+      }
+      super.positionEntity(position)
     }
 }
