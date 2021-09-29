@@ -18,6 +18,8 @@ export interface EntityProps {
     size?: OptionalSize
     /** Entities World */
     world: World
+    /** Render Layer (Layer of less than 0 will not render) */
+    layer?: number
 }
 
 /**
@@ -31,6 +33,8 @@ export class Entity {
     position: Coordinates
     /** size of Entity */
     size: Size
+    /** Render Layer (Layer of less than 0 will not render) */
+    layer: number
 
     /** Entities World */
     protected world: World
@@ -40,10 +44,11 @@ export class Entity {
      * @param {Object} props list of Entity attributes
      */
     constructor (props: EntityProps) {
-      const { char, position, size, world } = props
+      const { char, position, size, layer, world } = props
       this.char = char
       this.position = position
       this.size = { width: 1, height: 1, ...size }
+      this.layer = layer || 0
       this.world = world
     }
 

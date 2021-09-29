@@ -63,6 +63,7 @@ export class World {
       this.farthestCharY = Math.floor(this.dom.offsetHeight * 0.054)
       this.#entityList = []
       this.#drawString = (' '.repeat(this.farthestCharX) + '\n').repeat(this.farthestCharY)
+      this.#setListeners()
       this.draw()
     }
 
@@ -92,6 +93,14 @@ export class World {
      * @param {Entity} entity Entity to be drawn
      */
     drawEntity (entity: Entity): void {
+      if (entity.layer < 0) {
+        return
+      }
+      if (this.findEntities(entity.position).some(e => {
+        return e.layer > entity.layer
+      })) {
+        return
+      }
       this.setDrawCharAt(entity.char, this.getEntityDrawStringIndex(entity))
       this.draw()
     }
@@ -107,9 +116,7 @@ export class World {
         ))
         this.#entityList.splice(entityIndex, 1)
         this.eraseEntity(entity)
-      } catch (err) {
-
-      }
+      } catch {}
     }
 
     /**
@@ -120,9 +127,7 @@ export class World {
       try {
         this.setDrawCharAt(' ', this.getEntityDrawStringIndex(entity))
         this.draw()
-      } catch (err) {
-
-      }
+      } catch {}
     }
 
     /**
@@ -144,7 +149,15 @@ export class World {
     /** Re draws World */
     reDraw (): void {
       this.#drawString = (' '.repeat(this.farthestCharX) + '\n').repeat(this.farthestCharY)
+      const drawList:any = {}
       this.#entityList.forEach(entity => {
+        const { position, layer } = entity
+        if (layer < 0 || drawList[`${position.x},${position.y}`] >= layer) {
+          return
+        }
+        drawList[`${position.x},${position.y}`] = entity
+      })
+      Object.values(drawList).forEach((entity: Entity) => {
         this.setDrawCharAt(entity.char, this.getEntityDrawStringIndex(entity))
       })
       this.draw()
@@ -205,5 +218,14 @@ export class World {
       style.top = props.top || '10vh'
       style.backgroundColor = props.backgroundColor || 'black'
       style.color = props.color || 'white'
+    }
+
+    /** Sets resize event on window */
+    #setListeners (): void {
+      window.addEventListener('resize', () => {
+        this.farthestCharX = Math.floor(this.dom.offsetWidth * 0.105) - 1
+        this.farthestCharY = Math.floor(this.dom.offsetHeight * 0.054)
+        this.reDraw()
+      })
     }
 }
