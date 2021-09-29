@@ -130,8 +130,8 @@ export class World {
      * @param {Coordinates}
      * @returns {Entity} Entity at position
      */
-    findEntities ({ x, y }: Coordinates): Entity[] | undefined {
-      return this.#entityList.filter(({ position }) => (
+    findEntity ({ x, y }: Coordinates): Entity | undefined {
+      return this.#entityList.find(({ position }) => (
         position.x === x && position.y === y
       ))
     }

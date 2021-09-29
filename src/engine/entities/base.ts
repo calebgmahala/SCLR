@@ -29,6 +29,7 @@ export class Entity {
     char: string
     /** coordinates of Entities starting position (top left of entity) */
     position: Coordinates
+
     /** size of Entity */
     size: Size
 
@@ -53,21 +54,12 @@ export class Entity {
      */
     positionEntity (position: OptionalCoordinates): void {
       this.world.removeEntity(this)
-      const previousEntity = this.world.findEntities(this.position)[0]
+      const previousEntity = this.world.findEntity(this.position)
       if (previousEntity) {
         this.world.drawEntity(previousEntity)
       }
       this.position = { ...this.position, ...position }
       this.world.defineEntity(this)
-    }
-
-    /**
-     * Interface function that should be defined by a subclass
-     * Used to handle Entity interaction in World
-     * @param {Entity} entity Entity that causes contact
-     * @param {Function} callback Callback to Entity that caused contact
-     */
-    onContact (entity: Entity, callback: (props?: any) => void): void {
     }
 
     /**
