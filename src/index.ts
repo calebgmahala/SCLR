@@ -6,18 +6,49 @@ import { Entity } from './engine/entities/base'
 const world = new World()
 
 const wallPlacer = document.getElementById('wallPlacer')
-let wallClick = 1
+let wallClick = 0
 wallPlacer.addEventListener('click', () => {
-  world.defineEntity(new Wall({
+  const wall = new Wall({
     char: '+',
     position: {
-      x: 20,
-      y: wallClick
+      x: -1,
+      y: -1
     },
-    layer: 5,
+    layer: -1,
     world
-  }))
+  })
+  wall.createChildren([...Array(10).keys()].map(k =>
+    ({
+      position: {
+        x: 20 + wallClick,
+        y: k
+      },
+      layer: 5
+    })
+  ))
+  world.defineEntity(wall)
   wallClick++
+})
+
+const wallRemover = document.getElementById('wallRemover')
+let wallRemoverClick = 0
+wallRemover.addEventListener('click', () => {
+  world.findParentEntities({ x: 20 + wallRemoverClick, y: 2 }).forEach(e => {
+    world.removeEntity(e)
+  })
+  wallRemoverClick++
+})
+
+const wallShifter = document.getElementById('wallShifter')
+wallShifter.addEventListener('click', () => {
+  world.findParentEntities({ x: 19 + wallClick, y: 3 }).forEach(e => {
+    if (e instanceof Wall) {
+      e.positionEntityAndChildren({
+        y: e.position.y - 5,
+        x: e.position.x
+      })
+    }
+  })
 })
 
 const tunnelPlacer = document.getElementById('tunnelPlacer')

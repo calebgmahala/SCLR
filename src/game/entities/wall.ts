@@ -6,8 +6,8 @@ import { Entity } from '../../engine/entities/base'
 import { User } from './user'
 
 /** Wall entity
-  * @category Entities
-  */
+ * @category Entities
+ */
 export class Wall extends Entity {
   /** Inherited method from Entity
    * @param {Entity} entity Entity that caused the contact
