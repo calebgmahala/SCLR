@@ -1,23 +1,23 @@
-/**
- * @packageDocumentation
- * @module User
- */
-import { Entity, EntityProps } from '../../engine/entities/base'
-import { OptionalCoordinates } from '../../engine/utils/types'
+import { Entity, EntityProps, OptionalCoordinates } from '../../engine'
 
-/** User parameters */
+/** User constructor parameters */
 export interface UserProps extends EntityProps {
+    /**
+     * Speed of player
+     * *Should not be higher than any Wall width
+     */
     speed?: number
 }
 
-/** User entity that navigates the world
- * @category Entities
- */
+/** User entity that navigates the world */
 export class User extends Entity {
-    /** Speed of player (Should not be higher than any Wall width) */
+    /**
+     * Speed of player
+     * *Should not be higher than any Wall width
+     */
     speed: number
 
-    /** Constructor for User class */
+    /** Sets keypress listeners and adds the entity to the World */
     constructor (props: UserProps) {
       super(props)
       this.speed = props.speed || 1
@@ -26,8 +26,8 @@ export class User extends Entity {
     }
 
     /**
-     * Moves entity in desired direction
-     * @param {'w'|'a'|'s'|'d'} direction Move direction
+     * Handles key presses and moves entity in desired direction
+     * @param direction Move direction
      */
     move (direction: string): void {
       const { x, y } = this.position
@@ -54,16 +54,27 @@ export class User extends Entity {
       })
     }
 
-    /** Inherited method to position Entry.
-     * @param {OptionalCoordinates} position Position for User to be moved to
+    /**
+     * Inherited method from [[Entry]]
+     *
+     * Stops movement if contacted object responds with the callback
+     * *See documentation here [[Entry.positionEntity]]
+     * @param position Position for User to be moved to
      */
     positionEntity (position: OptionalCoordinates): void {
       let stop = false
-      this.world.findEntities({ ...this.position, ...position }).forEach(e => {
-        e.onContact(this, () => {
-          stop = true
+
+      /**
+       * Find parent entities at new position and call their
+       *  [[Entity.onContact]] method
+       */
+      this.world.findParentEntities({ ...this.position, ...position })
+        .forEach(e => {
+          e.onContact(this, () => {
+            stop = true
+          })
         })
-      })
+
       if (stop) {
         return
       }

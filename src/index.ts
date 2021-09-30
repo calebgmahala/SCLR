@@ -1,7 +1,5 @@
-import { User } from './game/entities/user'
-import { World } from './engine/environments/world'
-import { Wall } from './game/entities/wall'
-import { Entity } from './engine/entities/base'
+import { User, Wall } from './game'
+import { World, Entity } from './engine'
 
 const world = new World()
 

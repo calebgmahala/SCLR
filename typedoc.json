@@ -1,3 +1,13 @@
 {
-    "out": "docs"
+    "out": "docs",
+    "entryPointStrategy": "expand",
+    "entryPoints": [
+        "./src/engine/index.ts",
+        "./src/game/index.ts"
+    ],
+    "plugin": [
+        "typedoc-plugin-merge-modules",
+        "typedoc-plugin-rename-defaults"
+    ],
+    "mergeModulesMergeMode": "module"
 }
