@@ -13,13 +13,3 @@ export interface OptionalCoordinates {
     x?: number
     y?: number
 }
-
-export interface Size {
-    width: number
-    height: number
-}
-
-export interface OptionalSize {
-    width?: number
-    height?: number
-}

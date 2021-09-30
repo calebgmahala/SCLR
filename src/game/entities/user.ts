@@ -44,8 +44,6 @@ export class User extends Entity {
         case 'd':
           this.positionEntity({ x: x + this.speed })
           break
-        default:
-          console.log('Incorrect direction key try one of "wasd"')
       }
     }
 

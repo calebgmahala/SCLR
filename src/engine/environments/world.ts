@@ -4,7 +4,7 @@
  */
 
 import { Entity } from '../entities/base'
-import { Coordinates, OptionalCoordinates, OptionalSize, Size } from '../utils/types'
+import { Coordinates, OptionalCoordinates } from '../utils/types'
 
 /** Style parameters */
 export interface StyleProps {
@@ -21,8 +21,6 @@ export interface WorldProps {
     id?: string
     /** coordinates of World starting position */
     position?: OptionalCoordinates
-    /** size of World */
-    size?: OptionalSize
     /** css style of World element */
     style?: StyleProps
 }
@@ -36,10 +34,6 @@ export class World {
     dom: HTMLElement
     /** coordinates of World starting position */
     position: Coordinates
-
-    /** size of World */
-    size: Size
-
     /** total characters that can fit the width of the World on one line */
     farthestCharX: number
     /** total lines that can fit the hight of the World */
@@ -54,9 +48,8 @@ export class World {
      * @param {Object} props list of World attributes
      */
     constructor (props?: WorldProps) {
-      const { id, position, size, style } = props || {}
+      const { id, position, style } = props || {}
       this.position = { x: 0, y: 0, ...position }
-      this.size = { width: 100, height: 100, ...size }
       this.dom = document.getElementById(id || 'world')
       this.#initializeStyles({ ...style })
       this.farthestCharX = Math.floor(this.dom.offsetWidth * 0.105) - 1
@@ -84,6 +77,7 @@ export class World {
      * @param {Entity} entity entity to be added
      */
     defineEntity (entity: Entity): void {
+      entity.children.forEach(e => this.defineEntity(e))
       this.#entityList.push(entity)
       this.drawEntity(entity)
     }
@@ -96,6 +90,7 @@ export class World {
       if (entity.layer < 0) {
         return
       }
+      entity.children.forEach(e => this.drawEntity(e))
       if (this.findEntities(entity.position).some(e => {
         return e.layer > entity.layer
       })) {
@@ -111,6 +106,7 @@ export class World {
      */
     removeEntity (entity: Entity): void {
       try {
+        entity.children.forEach(e => this.removeEntity(e))
         const entityIndex = this.#entityList.findIndex((e) => (
           e === entity
         ))
@@ -125,6 +121,7 @@ export class World {
      */
     eraseEntity (entity: Entity): void {
       try {
+        entity.children.forEach(e => this.eraseEntity(e))
         this.setDrawCharAt(' ', this.getEntityDrawStringIndex(entity))
         this.draw()
       } catch {}
@@ -139,6 +136,11 @@ export class World {
       return this.#entityList.filter(({ position }) => (
         position.x === x && position.y === y
       ))
+    }
+
+    findParentEntities (position: Coordinates): Entity[] | undefined {
+      const entities = this.findEntities(position)
+      return entities.map(e => e.parent || e)
     }
 
     /** Draws the World */
@@ -158,7 +160,7 @@ export class World {
         drawList[`${position.x},${position.y}`] = entity
       })
       Object.values(drawList).forEach((entity: Entity) => {
-        this.setDrawCharAt(entity.char, this.getEntityDrawStringIndex(entity))
+        this.drawEntity(entity)
       })
       this.draw()
     }
@@ -199,8 +201,8 @@ export class World {
       if (!index) {
         return
       }
-      const string = this.#drawString
-      this.#drawString = string.substr(0, index) + char + string.substr(index + 1)
+      const currentString = this.#drawString
+      this.#drawString = currentString.substr(0, index) + char + currentString.substr(index + 1)
     }
 
     /**
