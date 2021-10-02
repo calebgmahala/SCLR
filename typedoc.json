@@ -3,7 +3,8 @@
     "entryPointStrategy": "expand",
     "entryPoints": [
         "./src/engine/index.ts",
-        "./src/game/index.ts"
+        "./src/game/index.ts",
+        "./src/controllers/index.ts"
     ],
     "plugin": [
         "typedoc-plugin-merge-modules",

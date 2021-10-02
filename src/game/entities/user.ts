@@ -4,7 +4,8 @@ import { Entity, EntityProps, OptionalCoordinates } from '../../engine'
 export interface UserProps extends EntityProps {
     /**
      * Speed of player
-     * *Should not be higher than any Wall width
+     *
+     * *Should not be higher than any Wall width*
      */
     speed?: number
 }
@@ -13,7 +14,8 @@ export interface UserProps extends EntityProps {
 export class User extends Entity {
     /**
      * Speed of player
-     * *Should not be higher than any Wall width
+     *
+     * *Should not be higher than any Wall width*
      */
     speed: number
 
@@ -22,7 +24,19 @@ export class User extends Entity {
       super(props)
       this.speed = props.speed || 1
       this.setListeners()
-      this.world.defineEntity(this)
+    }
+
+    /**
+     * Inherited method from [[Entity]]
+     *
+     * Sets parent Entity creation to instance of [[User]]
+     *
+     * *See documentation here [[Entry.buildParent]]*
+     * @param props Entity that caused the contact
+     * @returns New instance of User
+     */
+    static buildParent (props: EntityProps): User {
+      return new User(props)
     }
 
     /**
@@ -47,18 +61,12 @@ export class User extends Entity {
       }
     }
 
-    /** Sets key event onto the dom */
-    setListeners (): void {
-      document.addEventListener('keypress', (e) => {
-        this.move(e.key)
-      })
-    }
-
     /**
      * Inherited method from [[Entry]]
      *
      * Stops movement if contacted object responds with the callback
-     * *See documentation here [[Entry.positionEntity]]
+     *
+     * *See documentation here [[Entry.positionEntity]]*
      * @param position Position for User to be moved to
      */
     positionEntity (position: OptionalCoordinates): void {
@@ -79,5 +87,12 @@ export class User extends Entity {
         return
       }
       super.positionEntity(position)
+    }
+
+    /** Sets key event onto the dom */
+    setListeners (): void {
+      document.addEventListener('keypress', (e) => {
+        this.move(e.key)
+      })
     }
 }
