@@ -90,7 +90,7 @@ export class World {
      }
 
     /**
-     * Add an Entity to the World
+     * Add an Entity and it's children to the World
      * @param entity entity to be added
      */
     defineEntity (entity: Entity): void {
@@ -103,13 +103,14 @@ export class World {
 
     /** Draws the World */
     draw (): void {
-      this.dom.innerHTML = this.#drawString
+      this.dom.innerText = this.#drawString
     }
 
     /**
      * Draw a specific entity and it's children
-     * *Does not add entity or entity's children to World. See
-     *  [[World.defineEntity]]
+     *
+     * *Does not add entity or entity's children to World. See*
+     *  *[[World.defineEntity]]*
      * @param entity Entity to be drawn
      */
     drawEntity (entity: Entity): void {
@@ -135,8 +136,9 @@ export class World {
 
     /**
      * Erase an Entity and it's children
-     * *Does not remove entity or entity's children from the World. See
-     *  [World.removeEntity]
+     *
+     * *Does not remove entity or entity's children from the World. See*
+     *  *[[World.removeEntity]]*
      * @param entity entity to be removed
      */
     eraseEntity (entity: Entity): void {
@@ -149,8 +151,9 @@ export class World {
 
     /**
      * Finds entities at coordinates
-     * *Does not return entity's parent element. See
-     *  [[World.findParentEntities]]
+     *
+     * *Does not return entity's parent element. See*
+     *  *[[World.findParentEntities]]*
      * @param position Position of entities to find
      * @returns Entities at position
      */

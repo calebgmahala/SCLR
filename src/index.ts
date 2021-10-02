@@ -1,51 +1,15 @@
-import { User, Wall } from './game'
 import { World, Entity } from './engine'
+import { buildMap } from './controllers'
 
 const world = new World()
 
-const wallPlacer = document.getElementById('wallPlacer')
-let wallClick = 0
-wallPlacer.addEventListener('click', () => {
-  const wall = new Wall({
-    char: '+',
-    position: {
-      x: -1,
-      y: -1
-    },
-    layer: -1,
-    world
-  })
-  wall.createChildren([...Array(10).keys()].map(k =>
-    ({
-      position: {
-        x: 20 + wallClick,
-        y: k
-      },
-      layer: 5
-    })
-  ))
-  world.defineEntity(wall)
-  wallClick++
-})
+const { cardinalEntity } = buildMap(world)
 
-const wallRemover = document.getElementById('wallRemover')
-let wallRemoverClick = 0
-wallRemover.addEventListener('click', () => {
-  world.findParentEntities({ x: 20 + wallRemoverClick, y: 2 }).forEach(e => {
-    world.removeEntity(e)
-  })
-  wallRemoverClick++
-})
-
-const wallShifter = document.getElementById('wallShifter')
-wallShifter.addEventListener('click', () => {
-  world.findParentEntities({ x: 19 + wallClick, y: 3 }).forEach(e => {
-    if (e instanceof Wall) {
-      e.positionEntityAndChildren({
-        y: e.position.y - 5,
-        x: e.position.x
-      })
-    }
+const cardinalShifter = document.getElementById('cardinalShifter')
+cardinalShifter.addEventListener('click', () => {
+  const { position } = cardinalEntity
+  cardinalEntity.positionEntityAndChildren({
+    x: position.x + 1
   })
 })
 
@@ -53,7 +17,7 @@ const tunnelPlacer = document.getElementById('tunnelPlacer')
 let tunnelClick = 1
 tunnelPlacer.addEventListener('click', () => {
   world.defineEntity(new Entity({
-    char: '@',
+    char: '#',
     position: {
       x: tunnelClick,
       y: 20
@@ -106,15 +70,4 @@ up.addEventListener('click', () => {
 const down = document.getElementById('down')
 down.addEventListener('click', () => {
   world.setPosition({ y: world.position.y + 5 })
-})
-
-// eslint-disable-next-line
-const player = new User({
-  char: '*',
-  position: {
-    x: 20,
-    y: 20
-  },
-  layer: 10,
-  world
 })
